@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <script src="./myNest/public/js/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet"  href="./myNest/public/css/w3.css" type="text/css" >
+    <title>My Nest</title>
+  </head>
+  <body>
