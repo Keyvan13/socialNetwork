@@ -7,37 +7,6 @@ function formErrors($errors = array()){
   return $output;
 }
 
-function loginPage(){
-  $output = "<header class=\"w3-container w3-black\">
-            <h1>Welcom</h1>
-            </header>\n";
-  $output .= "<div class=\"w3-display-container w3-auto\" , style=\"height: 20em;\">
-  <form class =\"w3-container w3-display-middle w3-half w3-card-4\" action=\"index.php\" method=\"post\">
-    <label>Username:</label> <input class=\"w3-input\" type=\"text\" style=\"width:90%\" name=\"username\" value=\"\">
-    <label>Password:</label> <input class=\"w3-input\" type=\"password\" style=\"width:90%\" name=\"password\" value=\"\">
-    <input class=\"w3-button w3-section w3-teal w3-black\" type=\"submit\" name=\"loginSubmit\" value=\"Login\">
-    ";
-  $output .= "<a class=\"w3-button w3-section w3-teal w3-ripple\" href=\"index.php?mode=signup\" >Sign-up</a></form></div>";
-
-  return $output;
-}
-
-function signupPage(){
-  $output = "<header class=\"w3-container w3-black\">
-            <h1>Welcom</h1>
-            </header>\n
-            <div class=\"w3-display-container w3-auto\" , style=\"height: 29em;\">
-            <form class =\"w3-container w3-display-middle w3-half w3-card-4\" action=\"index.php\" method=\"post\">
-              <p>Username:</p> <input class=\"w3-input\" type=\"text\" style=\"width:90%\" name=\"username\" value=\"\"><br>
-              <p>Password:</p> <input class=\"w3-input\" type=\"password\" style=\"width:90%\" name=\"password\" value=\"\"><br>
-              <p>Confirm Password:</p> <input class=\"w3-input\" type=\"password\" style=\"width:90%\" name=\"confirmPassword\" value=\"\"><br>
-              <input class=\"w3-button w3-section w3-teal w3-black\" type=\"submit\" name=\"signupSumbit\" value=\"signup\">
-            </form>
-            </div>";
-
-  return $output;
-}
-
 function selectPassword(){
   global $connection;
   $uName = $_POST['username'];
@@ -58,31 +27,61 @@ function redirectTo($des){
 
 function connectDatabase(){
   global $hn,$un,$pw,$db;
-  $db = mysqli_connect($hn , $un , $pw , $db );
+  $db = new mysqli($hn , $un , $pw , $db);
 
   //check database connection
-  if (mysqli_connect_errno()){
+  if ($db->connect_error){
     die("Database connection failed:" .
-     mysqli_connect_error() .
-      ' (' . mysqli_connect_errno() .
-       ')'
-     );
+      $db->connect_error);
   }
   return $db;
 }
 
-function insertUser($uName , $pass){
-  global $connection;
-  $uName = mysqli_real_escape_string($connection , $uName);
-  $pass = mysqli_real_escape_string($connection , $pass);
-  $hashPass = password_hash($pass, PASSWORD_DEFAULT);
-  $query =  ' insert into users ( ';
-  $query .= ' username , hashpassword ) values (';
-  $query .= " \"{$uName}\", \"{$hashPass}\" )";
-  $result = mysqli_query($connection , $query);
+function saveProfile($p,$f){
+  switch($f['photo']['type']){
+    case 'image/jpeg': $ext = 'jpg'; break;
+    case 'image/gif': $ext = 'gif'; break;
+    case 'image/png': $ext = 'png'; break;
+    case 'image/tiff': $ext = 'tif'; break;
+    default: $ext = ''; break;
+  }
+  if ($ext){
+    $n = "./myNest/profiles/".$p["username"].".$ext";
+    move_uploaded_file($f['photo']['tmp_name'], $n);
+  }else {
+    echo "{$f['photo']['name']} is not an accepted image file";
+  }
+  return $n;
+}
 
+function addUser($connection , $p , $f){
+  $uName = $connection->real_escape_string($p["username"]);
+  $pass = $connection->real_escape_string($p["pass"]);
+  $email = $connection->real_escape_string($p["email"]);
+  $gender = $connection->real_escape_string($p["gender"]);
+  $path = saveProfile($p , $f);
+  $profilephoto = $connection->real_escape_string($path);
+  $hashPass = password_hash($pass, PASSWORD_DEFAULT);
+  $query = <<<_END
+    insert into users (
+    username ,
+    hashpassword ,
+    profilephoto ,
+    email ,
+    gender
+    ) values (
+    "$uName" ,
+    "$hashPass" ,
+    "$profilephoto" ,
+    "$email" ,
+    "$gender"
+    )
+  _END;
+  $result = $connection->query($query);
   if (!$result){
     die('database query failed');
+  } else {
+    return true;
   }
 }
 

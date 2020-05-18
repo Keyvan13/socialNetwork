@@ -40,6 +40,17 @@ class SignupPage extends Page{
 	}
 }
 
+class HomePage extends Page{
+
+	function __construct(){
+		parent::__construct();
+		$body = file_get_contents("./myNest/includes/html/home.section");
+		$h = $this->getHtml();
+		$h = str_replace("****" , $body , $h);
+		$this->html = $h;
+	}
+}
+
 
 
 ?>
