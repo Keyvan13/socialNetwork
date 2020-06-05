@@ -7,15 +7,11 @@ function formErrors($errors = array()){
   return $output;
 }
 
-function selectPassword(){
-  global $connection;
-  $uName = $_POST['username'];
-  //$pass = $_POST['password'];
-  $uName = mysqli_real_escape_string($connection , $uName);
-
-  $passSet = mysqli_query($connection ,
-   "select hashpassword from users where username = \"{$uName}\" limit 1");
-  return $passSet;
+function selectPassword($connection , $uName){
+  $uName = $connection->real_escape_string($uName);
+  $query = "select hashpassword from users where username = \"{$uName}\" limit 1";
+  $result = $connection->query($query);
+  return $result;
 }
 
 function redirectTo($des){
@@ -168,4 +164,51 @@ function verifiyNoteAccess($noteId , $uName){
   }
 
 }
+
+function checkAuth($connection , $p){
+  $passSet = selectPassword($connection , $p['username']);
+  if ($passSet->num_rows == 0 ) {
+    return false;
+  } else {
+    $row = $passSet->fetch_array(MYSQLI_ASSOC);
+    if (password_verify($p['pass'] , $row["hashpassword"])) {
+      return true;
+    }else {
+      return false;
+
+
+    }
+  }
+
+}
+
+function checkSession(){
+  session_start();
+  if (isset($_SESSION)){
+    if($_SESSION["verified"] !== true){
+      return false;
+    } else {
+      return true;
+    }
+  } else {
+    return false;
+  }
+}
+
+function setVerified(){
+  $_SESSION["verified"] = true;
+}
+function logOut()
+{
+  $_SESSION["verified"]= false;
+
+}
+
+function destroy_session_and_data(){
+  session_start();
+  $_SESSION = array();
+  setcookie(session_name(), '', time() - 2592000, '/');
+  session_destroy();
+}
+
  ?>

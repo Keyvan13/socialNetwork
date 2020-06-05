@@ -1,4 +1,6 @@
 <?php
+require_once "./myNest/includes/Objects/Post.php";
+
 class Page {
 	protected $html="";
 	function __construct(){
@@ -44,9 +46,11 @@ class HomePage extends Page{
 
 	function __construct(){
 		parent::__construct();
+		$posts = new Post(" " , " " , " " , " ");
 		$body = file_get_contents("./myNest/includes/html/home.section");
 		$h = $this->getHtml();
 		$h = str_replace("****" , $body , $h);
+		$h = str_replace("*****posts*****" , $posts->getHtml() , $h);
 		$this->html = $h;
 	}
 }
