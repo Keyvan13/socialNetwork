@@ -175,8 +175,6 @@ function checkAuth($connection , $p){
       return true;
     }else {
       return false;
-
-
     }
   }
 
@@ -198,8 +196,8 @@ function checkSession(){
 function setVerified(){
   $_SESSION["verified"] = true;
 }
-function logOut()
-{
+
+function logOut(){
   $_SESSION["verified"]= false;
 
 }
@@ -211,4 +209,51 @@ function destroy_session_and_data(){
   session_destroy();
 }
 
+function getFirends($connection , $uName){
+  $uName = $connection->real_escape_string($uName);
+  $userId = getUserId($connection , $uName);
+  $friends = [];
+  $query = "select second from friends where first = \"$userId\"";
+  $result = $connection->query($query);
+  while ($result->num_rows != 0) {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    $friends[] = $row["second"];
+  }
+
+  $query = "select first from friends where second = \"$userId\"";
+  $result = $connection->query($query);
+  while ($result->num_rows != 0) {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    $friends[] = $row["first"];
+  }
+
+  return $friends;
+}
+
+function getPosts($connection , $friends)
+{
+  $posts = [];
+  foreach ($friends as $f) {
+    $query = "select id and text and dateCreated and imgPath from posts where 	userId = \"$f\"";
+    $result = $connection->query($query);
+    while ($result->num_rows != 0) {
+      $row = $result->fetch_array(MYSQLI_ASSOC);
+      $posts[] = new Post($row["imgPath"] , $row["text"] , $f , $row["dateCreated"]);
+    }
+  }
+  return $posts;
+}
+
+function getUserId($connection , $uName)
+{
+  //An input shouldn't be escaped twice ($uName)
+  $query = "select id from users where username = \"$uName\" limit 1";
+  $result = $connection->query($query);
+  if ($result->num_rows != 0) {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    return $row["id"];
+  }else {
+    return false;
+  }
+}
  ?>

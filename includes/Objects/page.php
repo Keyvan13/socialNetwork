@@ -43,14 +43,24 @@ class SignupPage extends Page{
 }
 
 class HomePage extends Page{
-
+	global $connection;
 	function __construct(){
+		$uName = $_SESSION["username"];
+		$friends = getFirends($connection , $uName);
+		$posts = getPosts($connection , $friends);
+
 		parent::__construct();
-		$posts = new Post(" " , " " , " " , " ");
+
+		$postsHtml = "";
+		foreach ($posts as $p ) {
+			$postsHtml .= $p.getHtml();
+		}
+
+
 		$body = file_get_contents("./myNest/includes/html/home.section");
 		$h = $this->getHtml();
 		$h = str_replace("****" , $body , $h);
-		$h = str_replace("*****posts*****" , $posts->getHtml() , $h);
+		$h = str_replace("*****posts*****" , $postsHtml , $h);
 		$this->html = $h;
 	}
 }
