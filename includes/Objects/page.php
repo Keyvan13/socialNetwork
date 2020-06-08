@@ -1,12 +1,15 @@
 <?php
 require_once "./myNest/includes/Objects/Post.php";
+require_once './myNest/SimpleTemplateEngine/loader.php';
+
+
+$env = new SimpleTemplateEngine\Environment('./myNest/includes/html', '.php');
 
 class Page {
+	protected $env;
 	protected $html="";
 	function __construct(){
-		$this->setHtml(file_get_contents("./myNest/includes/html/header.section"));
-		$this->setHtml("\t****\n");
-		$this->setHtml(file_get_contents("./myNest/includes/html/footer.section"));
+		$this->env = new SimpleTemplateEngine\Environment('./myNest/includes/html', '.php');
 	}
 	protected function setHtml($h){
 		$this->html .= $h;
@@ -23,11 +26,14 @@ class Page {
 class LoginPage extends Page{
 
 	function __construct(){
-		parent::__construct();
-		$body = file_get_contents("./myNest/includes/html/login.section");
+
+		/*
+		$body = file_get_contents("./myNest/includes/html/login.php");
 		$h = $this->getHtml();
 		$h = str_replace("****" , $body , $h);
-		$this->html = $h;
+		$this->html = $h;*/
+		parent::__construct();
+		$this->html = $this->env->render('login');
 	}
 }
 
@@ -35,36 +41,28 @@ class SignupPage extends Page{
 
 	function __construct(){
 		parent::__construct();
-		$body = file_get_contents("./myNest/includes/html/sign-up.section");
-		$h = $this->getHtml();
-		$h = str_replace("****" , $body , $h);
-		$this->html = $h;
+		$this->html = $this->env->render('sign-up');
 	}
 }
 
 class HomePage extends Page{
-	global $connection;
-	function __construct(){
+
+	function __construct($connection){
+		parent::__construct();
 		$uName = $_SESSION["username"];
 		$friends = getFirends($connection , $uName);
 		$posts = getPosts($connection , $friends);
-
-		parent::__construct();
-
-		$postsHtml = "";
-		foreach ($posts as $p ) {
-			$postsHtml .= $p.getHtml();
-		}
-
-
-		$body = file_get_contents("./myNest/includes/html/home.section");
-		$h = $this->getHtml();
-		$h = str_replace("****" , $body , $h);
-		$h = str_replace("*****posts*****" , $postsHtml , $h);
-		$this->html = $h;
+		$this->html = $this->env->render('home');
 	}
 }
 
+class EditPage extends Page{
+
+	function __construct(){
+		parent::__construct();
+		$this->html = $this->env->render('edit');
+	}
+}
 
 
 ?>

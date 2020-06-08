@@ -3,6 +3,7 @@
  */
 class Post{
   private $imgPath, $text, $noLikes , $userId , $date ;
+  private $html;
 
 function __construct($imgp , $t , $u , $d)
   {
@@ -12,15 +13,14 @@ function __construct($imgp , $t , $u , $d)
     $date = $d;
   }
 
-  private $html = " <div class=\"w3-card\">
-                      <img src=\"$imgPath\">
-                      <p>$userId <br> nolikes</p>
-                      <p>$text</p>
-                    </div> ";
 
   public function getHtml()
   {
-    return $this->html;
+    return " <div class=\"w3-card\">
+                        <img src=\"$imgPath\">
+                        <p>$userId <br> nolikes</p>
+                        <p>$text</p>
+                      </div> ";
   }
 }
  ?>

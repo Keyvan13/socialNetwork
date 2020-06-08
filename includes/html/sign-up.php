@@ -1,3 +1,5 @@
+<?php $this->extend('layout') ?>
+<?php $this->block('title', 'My Nest') ?>
 <header class="w3-container w3-deep-purple">
   <h1>Sign Up</h1>
 </header>

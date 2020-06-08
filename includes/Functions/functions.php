@@ -81,6 +81,30 @@ function addUser($connection , $p , $f){
   }
 }
 
+function savePost($connection , $p , $f)
+{
+  $text = $connection->real_escape_string($p["text"]);
+  $path = savePostImage($p , $f);
+}
+
+/*function savePostImage($p , $f)************************post id
+{
+  switch($f['photo']['type']){
+    case 'image/jpeg': $ext = 'jpg'; break;
+    case 'image/gif': $ext = 'gif'; break;
+    case 'image/png': $ext = 'png'; break;
+    case 'image/tiff': $ext = 'tif'; break;
+    default: $ext = ''; break;
+  }
+  if ($ext){
+    $n = "./myNest/posts/".$p["username"].".$ext";
+    move_uploaded_file($f['photo']['tmp_name'], $n);
+  }else {
+    echo "{$f['photo']['name']} is not an accepted image file";
+  }
+  return $n;
+}
+*/
 function getNoteSet($uName){
   global $connection;
   $uName = mysqli_real_escape_string($connection , $uName);
