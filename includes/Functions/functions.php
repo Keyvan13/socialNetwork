@@ -1,5 +1,6 @@
 <?php
-function formErrors($errors = array()){
+function formErrors($errors = array())
+{
   $output = "";
   foreach ($errors as $key => $value) {
     $output .= "<p>{$value}</p>";
@@ -7,21 +8,24 @@ function formErrors($errors = array()){
   return $output;
 }
 
-function selectPassword($connection , $uName){
+function selectPassword($connection , $uName)
+{
   $uName = $connection->real_escape_string($uName);
   $query = "select hashpassword from users where username = \"{$uName}\" limit 1";
   $result = $connection->query($query);
   return $result;
 }
 
-function redirectTo($des){
+function redirectTo($des)
+{
 
   header("Location: {$des}");
   exit;
 
 }
 
-function connectDatabase(){
+function connectDatabase()
+{
   global $hn,$un,$pw,$db;
   $db = new mysqli($hn , $un , $pw , $db);
 
@@ -33,7 +37,8 @@ function connectDatabase(){
   return $db;
 }
 
-function saveProfile($p,$f){
+function saveProfile($p,$f)
+{
   switch($f['photo']['type']){
     case 'image/jpeg': $ext = 'jpg'; break;
     case 'image/gif': $ext = 'gif'; break;
@@ -50,7 +55,8 @@ function saveProfile($p,$f){
   return $n;
 }
 
-function addUser($connection , $p , $f){
+function addUser($connection , $p , $f)
+{
   $uName = $connection->real_escape_string($p["username"]);
   $pass = $connection->real_escape_string($p["pass"]);
   $email = $connection->real_escape_string($p["email"]);
@@ -84,10 +90,31 @@ function addUser($connection , $p , $f){
 function savePost($connection , $p , $f)
 {
   $text = $connection->real_escape_string($p["text"]);
-  $path = savePostImage($p , $f);
+  $path = savePostImage($f);
+  $photo = $connection->real_escape_string($path);
+  $uName = $connection->real_escape_string($_SESSION["username"]);
+  $userId = getUserId($connection , $uName);
+
+  $query = <<<_END
+    insert into posts (
+    text ,
+    userId ,
+    imgPath
+    ) values (
+    "$text" ,
+    "$userId" ,
+    "$photo"
+    )
+  _END;
+  $result = $connection->query($query);
+  if (!$result){
+    die('database query failed');
+  } else {
+    return true;
+  }
 }
 
-/*function savePostImage($p , $f)************************post id
+function savePostImage($f)
 {
   switch($f['photo']['type']){
     case 'image/jpeg': $ext = 'jpg'; break;
@@ -97,15 +124,16 @@ function savePost($connection , $p , $f)
     default: $ext = ''; break;
   }
   if ($ext){
-    $n = "./myNest/posts/".$p["username"].".$ext";
+    $n = "./myNest/posts/" . $_SESSION["username"] . time() . ".$ext";
     move_uploaded_file($f['photo']['tmp_name'], $n);
   }else {
     echo "{$f['photo']['name']} is not an accepted image file";
   }
   return $n;
 }
-*/
-function getNoteSet($uName){
+
+function getNoteSet($uName)
+{
   global $connection;
   $uName = mysqli_real_escape_string($connection , $uName);
   $query = "select body , id from notes where userid =
@@ -118,7 +146,8 @@ function getNoteSet($uName){
 
 }
 
-function getNoteById($id){
+function getNoteById($id)
+{
   global $connection;
   $id = mysqli_real_escape_string($connection , $id);
   $query = "select body from notes where id = {$id} limit 1";
@@ -130,7 +159,8 @@ function getNoteById($id){
 
 }
 
-function updateNote($noteId ,$text){
+function updateNote($noteId ,$text)
+{
   global $connection;
   $noteId = mysqli_real_escape_string($connection , $noteId);
   $text = mysqli_real_escape_string($connection , $text);
@@ -143,7 +173,8 @@ function updateNote($noteId ,$text){
   return $result;
 }
 
-function insertNote($uName , $text){
+function insertNote($uName , $text)
+{
   global $connection;
   $uName = mysqli_real_escape_string($connection , $uName);
   $text = mysqli_real_escape_string($connection , $text);
@@ -158,7 +189,8 @@ function insertNote($uName , $text){
   }
 }
 
-function deleteNote($noteId){
+function deleteNote($noteId)
+{
   global $connection;
   $noteId = mysqli_real_escape_string($connection , $noteId);
 
@@ -170,7 +202,8 @@ function deleteNote($noteId){
   }
 }
 
-function verifiyNoteAccess($noteId , $uName){
+function verifiyNoteAccess($noteId , $uName)
+{
   global $connection;
   $noteId = mysqli_real_escape_string($connection , $noteId);
   $uName = mysqli_real_escape_string($connection , $uName);
@@ -189,7 +222,8 @@ function verifiyNoteAccess($noteId , $uName){
 
 }
 
-function checkAuth($connection , $p){
+function checkAuth($connection , $p)
+{
   $passSet = selectPassword($connection , $p['username']);
   if ($passSet->num_rows == 0 ) {
     return false;
@@ -204,10 +238,11 @@ function checkAuth($connection , $p){
 
 }
 
-function checkSession(){
+function checkSession()
+{
   session_start();
-  if (isset($_SESSION)){
-    if($_SESSION["verified"] !== true){
+  if (isset($_SESSION["username"]) && isset($_SESSION)){
+    if(isset($_SESSION["verified"]) && $_SESSION["verified"] !== true || $_SESSION["username"] == "") {
       return false;
     } else {
       return true;
@@ -217,36 +252,44 @@ function checkSession(){
   }
 }
 
-function setVerified(){
+function setVerified()
+{
   $_SESSION["verified"] = true;
+
 }
 
-function logOut(){
+function logOut()
+{
   $_SESSION["verified"]= false;
 
 }
 
-function destroy_session_and_data(){
-  session_start();
+function destroy_session_and_data()
+{
+  if (!$_SESSION) {
+    //session_start();
+  }
   $_SESSION = array();
   setcookie(session_name(), '', time() - 2592000, '/');
   session_destroy();
 }
 
-function getFirends($connection , $uName){
+function getFirends($connection , $uName)
+{
   $uName = $connection->real_escape_string($uName);
   $userId = getUserId($connection , $uName);
   $friends = [];
   $query = "select second from friends where first = \"$userId\"";
   $result = $connection->query($query);
-  while ($result->num_rows != 0) {
+  for ($i = 0 ; $i<$result->num_rows ; ++$i) {
     $row = $result->fetch_array(MYSQLI_ASSOC);
     $friends[] = $row["second"];
   }
 
   $query = "select first from friends where second = \"$userId\"";
   $result = $connection->query($query);
-  while ($result->num_rows != 0) {
+
+  for ($i = 0 ; $i<$result->num_rows ; ++$i) {
     $row = $result->fetch_array(MYSQLI_ASSOC);
     $friends[] = $row["first"];
   }
@@ -254,15 +297,35 @@ function getFirends($connection , $uName){
   return $friends;
 }
 
+function getReqs($connection , $uName)
+{
+  $uName = $connection->real_escape_string($uName);
+  $userId = getUserId($connection , $uName);
+  $reqs = [];
+  $query = "select id,sender,status from requests where receiver = \"$userId\"";
+  $result = $connection->query($query);
+  for ($i = 0 ; $i<$result->num_rows ; ++$i) {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    //dumpInfo($row);
+    $reqs[] = new Request(getuName($connection , $row["sender"]) , $uName , $row["status"] , $row["id"]) ;
+  }
+  return $reqs;
+}
+
 function getPosts($connection , $friends)
 {
   $posts = [];
+  if (count($friends) == 0) {
+    return $posts;
+  }
+
   foreach ($friends as $f) {
-    $query = "select id and text and dateCreated and imgPath from posts where 	userId = \"$f\"";
+    $query = "select id,text,dateCreated,imgPath from posts where 	userId = $f";
     $result = $connection->query($query);
-    while ($result->num_rows != 0) {
+
+    for ($i = 0 ; $i<$result->num_rows ; ++$i) {
       $row = $result->fetch_array(MYSQLI_ASSOC);
-      $posts[] = new Post($row["imgPath"] , $row["text"] , $f , $row["dateCreated"]);
+      $posts[] = new Post($row["imgPath"] , $row["text"] , getuName($connection ,$f) , $row["dateCreated"]);
     }
   }
   return $posts;
@@ -273,11 +336,216 @@ function getUserId($connection , $uName)
   //An input shouldn't be escaped twice ($uName)
   $query = "select id from users where username = \"$uName\" limit 1";
   $result = $connection->query($query);
+
   if ($result->num_rows != 0) {
     $row = $result->fetch_array(MYSQLI_ASSOC);
     return $row["id"];
   }else {
     return false;
   }
+}
+
+function getuName($connection , $uId)
+{
+  //An input shouldn't be escaped twice ($uName)
+  $query = "select username from users where id = \"$uId\" limit 1";
+  $result = $connection->query($query);
+  if ($result->num_rows != 0) {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    return $row["username"];
+  }else {
+    return false;
+  }
+}
+
+function searchUsers($connection , $p)
+{
+  $answers = [];
+  $target =($p["searchText"]);
+  $query=<<<_END
+    select
+    username
+    from
+    users
+  _END;
+  $result = $connection->query($query);
+  for ($i = 0 ; $i<$result->num_rows ; ++$i) {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    $n = preg_match("/$target/i" , $row["username"]);
+    if ($n && $row["username"] != $_SESSION["username"]) {
+      $answers[] = $row["username"];
+    }
+  }
+  return $answers;
+}
+
+function isFriend($connection , $u1 , $u2)
+{
+  $friendship = false;
+  $friends = getFirends($connection , $u1);
+  $ui2 = getUserId($connection , $u2);
+
+
+  foreach ($friends as $f) {
+    if ($f == $ui2) {
+      $friendship = true;
+      break;
+    }
+  }
+
+
+
+
+  /*
+  $ui1 = getUserId($connection , $u1);
+
+  $ans = false;
+  $query = <<<_END
+    select
+    first
+    from
+    friends
+    where
+    sender =
+    $ui1
+  _END;
+  $result = $connection->query($query);
+  for ($i = 0 ; $i<$result->num_rows ; ++$i) {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    if ($row["receiver"] == $ui2 ) {
+      $ans = true;
+    }
+  }
+  */
+  return $friendship;
+}
+
+function performRequest($connection , $sender , $receiver)
+{
+  $sender = getUserId($connection , $sender);
+  $receiver = getUserId($connection , $receiver);
+  $query=<<<_END
+    insert into
+    requests (
+      sender ,
+      receiver ,
+      status
+    )
+    values (
+      $sender ,
+      $receiver ,
+      "pending"
+    )
+  _END;
+  $result = $connection->query($query);
+}
+
+function dumpInfo($param)
+{
+  echo "<pre>";
+  var_dump($param);
+  echo "</pre>";
+}
+
+function checkAccess()
+{
+  if ($_SESSION["verified"] == false || $_SESSION["username"] == "") {
+    redirectTo("/");
+  }
+}
+
+function handleReq($connection)
+{
+  $req = getReqbyId($connection , $_GET["id"]);
+  $req->setStatus($_GET["status"]);
+  $status = $req->getStatus();
+  $id = $_GET["id"];
+  $query = <<<_END
+    UPDATE
+    requests
+    SET
+    status =
+    "$status"
+    WHERE id =
+    $id
+  _END;
+
+
+
+  $result = $connection->query($query);
+  if ($result) {
+    updateFriends($connection);
+  return true;
+  }else {
+    die;
+  }
+}
+
+function getReqbyId($connection , $id)
+{
+  //An input shouldn't be escaped twice ($uName)
+  $query = "select sender,receiver,status from requests where id = \"$id\"";
+  $result = $connection->query($query);
+
+  if ($result->num_rows != 0) {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    return new Request($row["sender"] , $row["receiver"] , $row["status"] , $id);
+  }else {
+    return false;
+  }
+}
+
+function updateFriends($connection)
+{
+  $query = "select * from requests where status = \"accept\"";
+  $reqSet = $connection->query($query);
+  $noReqs = $reqSet->num_rows;
+
+  $query = "select * from friends";
+  $friSet = $connection->query($query);
+  $noFris = $friSet->num_rows;
+  $friRows = [];
+  for ($i=0; $i < $noFris; $i++) {
+    $row = $friSet->fetch_array(MYSQLI_ASSOC);
+    $friRows[] = new FriendshipRow($row["first"] , $row["second"]);
+  }
+
+  for ($i=0; $i < $noReqs; $i++) {
+    $row = $reqSet->fetch_array(MYSQLI_ASSOC);
+    $first = $row["sender"];
+    $second = $row["receiver"];
+    $doesExist = false;
+    foreach ($friRows as $k) {
+      if ($k->sender == $first && $k->receiver == $second) {
+        $doesExist = true;
+        break;
+      }
+    }
+    if (!$doesExist) {
+      $query=<<<_END
+        insert into
+        friends (
+          first ,
+          second
+        )
+        values (
+          $first ,
+          $second
+        )
+      _END;
+      $result = $connection->query($query);
+      dumpInfo($result);
+      if (!$result) {
+        die;
+      }
+    }
+  }
+
+  /*if ($result->num_rows != 0) {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    return new Request($row["sender"] , $row["receiver"] , $row["status"] , $id);
+  }else {
+    return false;
+  }*/
 }
  ?>

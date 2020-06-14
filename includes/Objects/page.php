@@ -2,7 +2,6 @@
 require_once "./myNest/includes/Objects/Post.php";
 require_once './myNest/SimpleTemplateEngine/loader.php';
 
-
 $env = new SimpleTemplateEngine\Environment('./myNest/includes/html', '.php');
 
 class Page {
@@ -19,19 +18,8 @@ class Page {
 	}
 }
 
-
-/**
- *
- */
 class LoginPage extends Page{
-
 	function __construct(){
-
-		/*
-		$body = file_get_contents("./myNest/includes/html/login.php");
-		$h = $this->getHtml();
-		$h = str_replace("****" , $body , $h);
-		$this->html = $h;*/
 		parent::__construct();
 		$this->html = $this->env->render('login');
 	}
@@ -51,16 +39,32 @@ class HomePage extends Page{
 		parent::__construct();
 		$uName = $_SESSION["username"];
 		$friends = getFirends($connection , $uName);
+		$friends[] = getUserId($connection , $uName);
 		$posts = getPosts($connection , $friends);
-		$this->html = $this->env->render('home');
+
+		$this->html = $this->env->render('home' , ['uName'=>$uName , "posts"=>$posts]);
 	}
 }
 
-class EditPage extends Page{
+class EditPage extends Page
+{
 
 	function __construct(){
 		parent::__construct();
 		$this->html = $this->env->render('edit');
+	}
+}
+
+class FriendsPage extends Page
+{
+	function __construct($connection , $answers)
+	{
+		parent::__construct();
+		updateFriends($connection);
+		$uName = $_SESSION["username"];
+		$friends = getFirends($connection , $uName);
+		$requests = getReqs($connection , $uName);
+		$this->html = $this->env->render('friends' , ['uName'=>$uName , "friends"=>$friends , "requests"=>$requests , "answers"=>$answers , "connection"=>$connection]);
 	}
 }
 

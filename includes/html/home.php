@@ -1,12 +1,25 @@
 <?php $this->extend('layout') ?>
-<?php $this->block('title', 'My Nest') ?>
-<?php $this->block("posts") ?>
-posts go here
+<?php $this->block('title') ?>
+<?php echo $uName; ?>
 <?php $this->endblock() ?>
+
+<?php $this->block("posts") ;
+if ($posts) {
+  foreach ($posts as $p ) {
+    echo $p->getHtml();
+    echo "<br>";
+  }
+} else {
+  echo "Your friends have not share any posts yet.<br> Try exploring other people posts <a href=\"/explore\">here</a>";
+}
+
+ ?>
+<?php $this->endblock() ?>
+
 <div id="mainNav" class="w3-bar w3-black">
   <img class="w3-bar-item" src="../myNest/profiles/learnphp.png" width="50px" height="50px">
-  <a href="" class="w3-bar-item w3-button w3-padding-large">Explore</a>
-  <a href="" class="w3-bar-item w3-button w3-padding-large">Friends</a>
+  <a href="/explore" class="w3-bar-item w3-button w3-padding-large">Explore</a>
+  <a href="/friends" class="w3-bar-item w3-button w3-padding-large">Friends</a>
   <a href="" class="w3-bar-item w3-button w3-padding-large">Profile</a>
   <a href="/new" class="w3-bar-item w3-button w3-padding-large">New Post</a>
 </div>
