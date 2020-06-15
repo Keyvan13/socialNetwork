@@ -7,7 +7,7 @@
     <link rel="stylesheet"  href="../myNest/public/css/w3.css" type="text/css" >
 		<title><?php echo $this['title']?></title>
 	</head>
-	<body>
+	<body class="w3-container">
 		<?php echo $this['content']; ?>
 	</body>
 </html>

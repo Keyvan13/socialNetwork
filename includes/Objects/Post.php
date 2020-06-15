@@ -13,6 +13,11 @@ function __construct($imgp , $t , $u , $d)
     $this->date = $d;
   }
 
+  public function getD()
+  {
+    return $this->date;
+  }
+
 
   public function getHtml()
   {

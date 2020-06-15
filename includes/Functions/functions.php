@@ -327,8 +327,9 @@ function getPosts($connection , $friends)
       $row = $result->fetch_array(MYSQLI_ASSOC);
       $posts[] = new Post($row["imgPath"] , $row["text"] , getuName($connection ,$f) , $row["dateCreated"]);
     }
+
   }
-  return $posts;
+  return sortPosts($posts);
 }
 
 function getUserId($connection , $uName)
@@ -547,5 +548,22 @@ function updateFriends($connection)
   }else {
     return false;
   }*/
+}
+
+function sortPosts($posts){
+
+  do {
+    $swaped = false;
+    for ($i=0; $i < sizeof($posts)-1; $i++) {
+      //dumpInfo($posts[$i]->getD());
+      if (strtotime($posts[$i]->getD()) < strtotime($posts[$i+1]->getD()) ) {
+        $swaped = true;
+        $temp = $posts[$i];
+        $posts[$i] = $posts[$i+1];
+        $posts[$i+1] = $temp;
+      }
+    }
+  } while ($swaped);
+  return $posts;
 }
  ?>
