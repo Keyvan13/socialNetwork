@@ -1,7 +1,8 @@
 <?php $this->extend('layout') ?>
-<?php $this->block('title') ?>
-<?php echo $uName; ?>
-<?php $this->endblock() ?>
+<?php $this->block('title');
+ echo $uName;
+ $this->endblock(); 
+?>
 
 <?php $this->block("posts") ;
 if ($posts) {
@@ -20,7 +21,7 @@ if ($posts) {
   <img class="w3-bar-item" src="../myNest/profiles/learnphp.png" width="50px" height="50px">
   <a href="/explore" class="w3-bar-item w3-button w3-padding-large">Explore</a>
   <a href="/friends" class="w3-bar-item w3-button w3-padding-large">Friends</a>
-  <a href="" class="w3-bar-item w3-button w3-padding-large">Profile</a>
+  <a href="/profile" class="w3-bar-item w3-button w3-padding-large">Profile</a>
   <a href="/new" class="w3-bar-item w3-button w3-padding-large">New Post</a>
 </div>
 

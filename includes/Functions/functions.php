@@ -159,20 +159,6 @@ function getNoteById($id)
 
 }
 
-function updateNote($noteId ,$text)
-{
-  global $connection;
-  $noteId = mysqli_real_escape_string($connection , $noteId);
-  $text = mysqli_real_escape_string($connection , $text);
-
-  $query = "update notes set body=\"{$text}\" where id ={$noteId}";
-  $result = mysqli_query($connection , $query);
-  if (!$result){
-    die('database query failed');
-  }
-  return $result;
-}
-
 function insertNote($uName , $text)
 {
   global $connection;
@@ -182,19 +168,6 @@ function insertNote($uName , $text)
   $query =  ' insert into notes ( ';
   $query .= ' userid , body ) values (';
   $query .= " (select id from users where username = \"{$uName}\"), \"{$text}\" )";
-  $result = mysqli_query($connection , $query);
-
-  if (!$result){
-    die('database query failed');
-  }
-}
-
-function deleteNote($noteId)
-{
-  global $connection;
-  $noteId = mysqli_real_escape_string($connection , $noteId);
-
-  $query = "delete from notes where id = {$noteId}";
   $result = mysqli_query($connection , $query);
 
   if (!$result){
@@ -325,7 +298,7 @@ function getPosts($connection , $friends)
 
     for ($i = 0 ; $i<$result->num_rows ; ++$i) {
       $row = $result->fetch_array(MYSQLI_ASSOC);
-      $posts[] = new Post($row["imgPath"] , $row["text"] , getuName($connection ,$f) , $row["dateCreated"]);
+      $posts[] = new Post($row["imgPath"] , $row["text"] , getuName($connection ,$f) , $row["dateCreated"] , $row["id"]);
     }
 
   }
@@ -535,7 +508,6 @@ function updateFriends($connection)
         )
       _END;
       $result = $connection->query($query);
-      dumpInfo($result);
       if (!$result) {
         die;
       }
@@ -566,4 +538,30 @@ function sortPosts($posts){
   } while ($swaped);
   return $posts;
 }
+
+function getPostbyId($connection , $id)
+{
+  $query = "select text from posts where id = \"$id\"";
+  $result = $connection->query($query);
+  if ($result->num_rows != 0) {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    return new Post(null , $row["text"] , null , null , $id);
+  }
+}
+
+function updatePost($connection , $p)
+{
+  if (isset($p["saveChanges"]) && $p["saveChanges"] === "Save Changes") {
+    $text = $connection->real_escape_string($p["text"]);
+    $id = $p["id"];
+    $query = "update posts set text=\"{$text}\" where id =$id";
+    $connection->query($query);
+  }elseif (isset($p["delete"]) && $p["delete"] === "Delete Post") {
+    $id = $p["id"];
+    $query = "delete from posts where id = $id";
+    $connection->query($query);
+  }
+
+}
+
  ?>

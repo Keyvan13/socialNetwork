@@ -4,7 +4,8 @@ require_once './myNest/SimpleTemplateEngine/loader.php';
 
 $env = new SimpleTemplateEngine\Environment('./myNest/includes/html', '.php');
 
-class Page {
+class Page
+{
 	protected $env;
 	protected $html="";
 	function __construct(){
@@ -14,18 +15,20 @@ class Page {
 		$this->html .= $h;
 	}
 	public function getHtml(){
-	return $this->html;
+		return $this->html;
 	}
 }
 
-class LoginPage extends Page{
+class LoginPage extends Page
+{
 	function __construct(){
 		parent::__construct();
 		$this->html = $this->env->render('login');
 	}
 }
 
-class SignupPage extends Page{
+class SignupPage extends Page
+{
 
 	function __construct(){
 		parent::__construct();
@@ -33,7 +36,8 @@ class SignupPage extends Page{
 	}
 }
 
-class HomePage extends Page{
+class HomePage extends Page
+{
 
 	function __construct($connection){
 		parent::__construct();
@@ -46,12 +50,36 @@ class HomePage extends Page{
 	}
 }
 
+class ProfilePage extends Page
+{
+
+	function __construct($connection){
+		parent::__construct();
+		$uName = $_SESSION["username"];
+		//$friends = getFirends($connection , $uName);
+		//$friends[] = getUserId($connection , $uName);
+		$posts = getPosts($connection , [getUserId($connection , $uName)]);
+
+		$this->html = $this->env->render('profile' , ['uName'=>$uName , "posts"=>$posts]);
+	}
+}
+
 class EditPage extends Page
 {
+	private $posts = null;
 
 	function __construct(){
 		parent::__construct();
-		$this->html = $this->env->render('edit');
+
+		$this->html = $this->env->render('edit' , ['posts'=>$this->posts]);
+	}
+
+	public static function withPosts($posts)
+	{
+		$instance = new self();
+		$instance->posts = $posts;
+		$instance->html = $instance->env->render('edit' , ['posts'=>$instance->posts]);
+		return $instance;
 	}
 }
 
