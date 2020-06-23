@@ -3,7 +3,20 @@ $this->extend('layout');
 $this->block('title', 'My Nest');
 $this->block('errors');
   if ($errors) {
-    dumpInfo($errors[0]);
+    //dumpInfo($errors);
+    foreach ($errors[0] as $e) {
+      //dumpInfo($e);
+      if (sizeof($e) != 0) {
+        foreach ($e as $key => $value) {
+          if ($key == "cpass") {
+            $value = str_replace("cpass" , "Confirm password" , $value);
+          }
+          echo <<<_END
+          <span class="w3-red">$value</span><br>
+          _END;
+        }
+      }
+    }
   }
 $this->endblock();
 ?>
