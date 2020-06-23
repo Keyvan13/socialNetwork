@@ -54,8 +54,9 @@ function saveProfile($p,$f)
   return $n;
 }
 
-function addUser($connection , $p , $f)
+function addUser($p , $f)
 {
+  $connection = connectDatabase();
   $uName = $connection->real_escape_string($p["username"]);
   $pass = $connection->real_escape_string($p["pass"]);
   $email = $connection->real_escape_string($p["email"]);
@@ -80,8 +81,13 @@ function addUser($connection , $p , $f)
   _END;
   $result = $connection->query($query);
   if (!$result){
+    $result->close();
+    $connection->close();
     die('database query failed');
   } else {
+    //$result->close();
+    dumpInfo($result);
+    $connection->close();
     return true;
   }
 }

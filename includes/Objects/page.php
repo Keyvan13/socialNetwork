@@ -30,9 +30,9 @@ class LoginPage extends Page
 class SignupPage extends Page
 {
 
-	function __construct(){
+	function __construct($e){
 		parent::__construct();
-		$this->html = $this->env->render('sign-up');
+		$this->html = $this->env->render('sign-up' , ['errors'=>$e]);
 	}
 }
 

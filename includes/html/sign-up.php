@@ -1,11 +1,16 @@
 <?php
 $this->extend('layout');
 $this->block('title', 'My Nest');
+$this->block('errors');
+  if ($errors) {
+    dumpInfo($errors[0]);
+  }
+$this->endblock();
 ?>
 <header class="w3-container w3-deep-purple">
   <h1>Sign Up</h1>
 </header>
-
+<?php echo $this['errors']; ?>
 <div class="w3-display-container w3-auto" , style="height: 40em;">
 
 <form class="w3-container w3-display-middle w3-half w3-card-4" action="sign-up" method="post" enctype='multipart/form-data'>
