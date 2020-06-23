@@ -2,66 +2,60 @@
 $this->extend('layout');
 
 $this->block('title');
-echo $uName;
+  echo $uName;
 $this->endblock();
-?>
-<?php
+
 $this->block("friends");
-echo "<p> Friends </p>\n <ul>";
+  echo "<p> Friends </p>\n <ul>";
 
-if ($friends) {
-  foreach ($friends as $f) {
-    $fName = getuName($connection , $f);
-    echo "<li>$fName</li>";
+  if ($friends) {
+    foreach ($friends as $f) {
+      $fName = getuName($connection , $f);
+      echo "<li>$fName</li>";
+    }
+  }else {
+    echo "<li>You have no friends yet.</li>";
   }
-}else {
-  echo "<li>You have no friends yet.</li>";
-}
-echo "</ul>";
-
+  echo "</ul>";
 $this->endblock();
- ?>
 
- <?php
- $this->block("requests");
- echo "<p> Friendship requests </p>";
- if (sizeof($requests) != 0) {
-   foreach ($requests as $f) {
-     if ($f->getStatus() == "pending") {
-       $sender = $f->getSender();
-       $reqId = $f->getId();
-       echo <<<_END
-       <p> $sender has requested to follow you
-       <a href="/friends?res=true&id=$reqId&status=accept"> accept</a>
-       <a href="/friends?res=true&id=$reqId&status=reject">reject</a></p>
-       _END;
+$this->block("requests");
+   echo "<p> Friendship requests </p>";
+   if (sizeof($requests) != 0) {
+     foreach ($requests as $f) {
+       if ($f->getStatus() == "pending") {
+         $sender = $f->getSender();
+         $reqId = $f->getId();
+         echo <<<_END
+         <p> $sender has requested to follow you
+         <a href="/friends?res=true&id=$reqId&status=accept"> accept</a>
+         <a href="/friends?res=true&id=$reqId&status=reject">reject</a></p>
+         _END;
+       }
      }
+   }else {
+     echo "You have no requests.";
    }
- }else {
-   echo "You have no requests.";
- }
- $this->endblock();
-  ?>
-<?php
+$this->endblock();
+
 $this->block("answers");
-if ($answers == "nothing") {
-  echo "nothing found";
-}elseif($answers == "noSearch"){
-  echo "<br>";
-}else {
-  foreach ($answers as $f) {
-    echo "<p>$f ";
-    if (isFriend($connection , $uName , $f) && $f != $uName) {
-      echo "requested</p>";
-    }else {
-      echo "<a href=\"/searchPeople?req=true&sender=$uName&receiver=$f\"> request </a></p>";
+  if ($answers == "nothing") {
+    echo "nothing found";
+  }elseif($answers == "noSearch"){
+    echo "<br>";
+  }else {
+    foreach ($answers as $f) {
+      echo "<p>$f ";
+      if (isFriend($connection , $uName , $f) && $f != $uName) {
+        echo "requested</p>";
+      }else {
+        echo "<a href=\"/searchPeople?req=true&sender=$uName&receiver=$f\"> request </a></p>";
+      }
     }
   }
-}
 $this->endblock();
 
  ?>
-
 
 <div id="mainNav" class="w3-bar w3-black">
   <img class="w3-bar-item" src="../myNest/profiles/learnphp.png" width="50px" height="50px">

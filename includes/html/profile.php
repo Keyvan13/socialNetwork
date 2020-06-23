@@ -1,5 +1,6 @@
-<?php $this->extend('layout') ?>
 <?php
+$this->extend('layout');
+
 $this->block('title');
  echo $uName;
 $this->endblock();

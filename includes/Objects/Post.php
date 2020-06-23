@@ -1,5 +1,4 @@
 <?php
-
 class Post{
   private $imgPath, $text, $noLikes , $uName , $date ;
   private $html , $id , $pHtml;

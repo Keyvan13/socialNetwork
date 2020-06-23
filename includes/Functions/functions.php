@@ -1,12 +1,4 @@
 <?php
-function formErrors($errors = array())
-{
-  $output = "";
-  foreach ($errors as $key => $value) {
-    $output .= "<p>{$value}</p>";
-  }
-  return $output;
-}
 
 function selectPassword($connection , $uName)
 {
@@ -18,17 +10,14 @@ function selectPassword($connection , $uName)
 
 function redirectTo($des)
 {
-
   header("Location: {$des}");
   exit;
-
 }
 
 function connectDatabase()
 {
   global $hn,$un,$pw,$db;
   $db = new mysqli($hn , $un , $pw , $db);
-
   //check database connection
   if ($db->connect_error){
     die("Database connection failed:" .
@@ -132,69 +121,6 @@ function savePostImage($f)
   return $n;
 }
 
-function getNoteSet($uName)
-{
-  global $connection;
-  $uName = mysqli_real_escape_string($connection , $uName);
-  $query = "select body , id from notes where userid =
-    (select id from users where username = \"{$uName}\" limit 1)";
-  $result = mysqli_query($connection , $query);
-  if ($result === null){
-    die('database query failed');
-  }
-  return $result;
-
-}
-
-function getNoteById($id)
-{
-  global $connection;
-  $id = mysqli_real_escape_string($connection , $id);
-  $query = "select body from notes where id = {$id} limit 1";
-  $result = mysqli_query($connection , $query);
-  if (!$result){
-    die('database query failed');
-  }
-  return $result;
-
-}
-
-function insertNote($uName , $text)
-{
-  global $connection;
-  $uName = mysqli_real_escape_string($connection , $uName);
-  $text = mysqli_real_escape_string($connection , $text);
-
-  $query =  ' insert into notes ( ';
-  $query .= ' userid , body ) values (';
-  $query .= " (select id from users where username = \"{$uName}\"), \"{$text}\" )";
-  $result = mysqli_query($connection , $query);
-
-  if (!$result){
-    die('database query failed');
-  }
-}
-
-function verifiyNoteAccess($noteId , $uName)
-{
-  global $connection;
-  $noteId = mysqli_real_escape_string($connection , $noteId);
-  $uName = mysqli_real_escape_string($connection , $uName);
-
-  $query = "select username from users where id =(select userid from notes where id = {$noteId})";
-  $result = mysqli_query($connection , $query);
-
-  if (!$result){
-    die('database query failed');
-  }
-  if($uName === mysqli_fetch_row($result)[0]){
-    return true;
-  }else {
-    return false;
-  }
-
-}
-
 function checkAuth($connection , $p)
 {
   $passSet = selectPassword($connection , $p['username']);
@@ -228,19 +154,17 @@ function checkSession()
 function setVerified()
 {
   $_SESSION["verified"] = true;
-
 }
 
 function logOut()
 {
   $_SESSION["verified"]= false;
-
 }
 
 function destroy_session_and_data()
 {
   if (!$_SESSION) {
-    //session_start();
+    session_start();
   }
   $_SESSION = array();
   setcookie(session_name(), '', time() - 2592000, '/');
@@ -261,12 +185,10 @@ function getFirends($connection , $uName)
 
   $query = "select first from friends where second = \"$userId\"";
   $result = $connection->query($query);
-
   for ($i = 0 ; $i<$result->num_rows ; ++$i) {
     $row = $result->fetch_array(MYSQLI_ASSOC);
     $friends[] = $row["first"];
   }
-
   return $friends;
 }
 
@@ -279,7 +201,6 @@ function getReqs($connection , $uName)
   $result = $connection->query($query);
   for ($i = 0 ; $i<$result->num_rows ; ++$i) {
     $row = $result->fetch_array(MYSQLI_ASSOC);
-    //dumpInfo($row);
     $reqs[] = new Request(getuName($connection , $row["sender"]) , $uName , $row["status"] , $row["id"]) ;
   }
   return $reqs;
@@ -359,38 +280,12 @@ function isFriend($connection , $u1 , $u2)
   $friends = getFirends($connection , $u1);
   $ui2 = getUserId($connection , $u2);
 
-
   foreach ($friends as $f) {
     if ($f == $ui2) {
       $friendship = true;
       break;
     }
   }
-
-
-
-
-  /*
-  $ui1 = getUserId($connection , $u1);
-
-  $ans = false;
-  $query = <<<_END
-    select
-    first
-    from
-    friends
-    where
-    sender =
-    $ui1
-  _END;
-  $result = $connection->query($query);
-  for ($i = 0 ; $i<$result->num_rows ; ++$i) {
-    $row = $result->fetch_array(MYSQLI_ASSOC);
-    if ($row["receiver"] == $ui2 ) {
-      $ans = true;
-    }
-  }
-  */
   return $friendship;
 }
 
@@ -443,8 +338,6 @@ function handleReq($connection)
     WHERE id =
     $id
   _END;
-
-
 
   $result = $connection->query($query);
   if ($result) {
@@ -514,20 +407,12 @@ function updateFriends($connection)
     }
   }
 
-  /*if ($result->num_rows != 0) {
-    $row = $result->fetch_array(MYSQLI_ASSOC);
-    return new Request($row["sender"] , $row["receiver"] , $row["status"] , $id);
-  }else {
-    return false;
-  }*/
 }
 
 function sortPosts($posts){
-
   do {
     $swaped = false;
     for ($i=0; $i < sizeof($posts)-1; $i++) {
-      //dumpInfo($posts[$i]->getD());
       if (strtotime($posts[$i]->getD()) < strtotime($posts[$i+1]->getD()) ) {
         $swaped = true;
         $temp = $posts[$i];
@@ -561,7 +446,6 @@ function updatePost($connection , $p)
     $query = "delete from posts where id = $id";
     $connection->query($query);
   }
-
-}
+ }
 
  ?>

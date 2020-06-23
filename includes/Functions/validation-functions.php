@@ -2,9 +2,7 @@
 function validateUniqueness($c,$value ,$field , $table){
   $errors =[];
   $query = "select {$field} from {$table}";
-
   $result = $c->query($query);
-
   $rows = $result->num_rows;
   for ($j = 0 ; $j < $rows ; ++$j){
     $row = $result->fetch_array(MYSQLI_ASSOC);
@@ -12,10 +10,6 @@ function validateUniqueness($c,$value ,$field , $table){
       $errors[$field] = "{$field} already exists";
     }
   }
-
-
-  //mysqli_free_result($result);
-
   return $errors;
 }
 
@@ -25,7 +19,6 @@ function hasPresence($value){
 
 function validatePresences($requiredFields , $p){
   $errors =[];
-
   foreach($requiredFields as $field){
     $value = trim($p[$field]);
     if(!hasPresence($value)){
@@ -48,7 +41,7 @@ function validateFilePresence($f){
       default: $ext = ''; break;
     }
     if(!$ext){
-      $errors["filleType"]= "Uploaded file is not a valid image";   
+      $errors["filleType"]= "Uploaded file is not a valid image";
     }
   }
 
@@ -77,7 +70,6 @@ function validatePass($p){
 
 function validateSignup($c,$p ,$f){
 
-
   $errors =[];
   $valid = [];
   $errors[] = validatePresences(["username" , "email" , "pass" , "cpass" , "gender" ],$p);
@@ -96,6 +88,5 @@ function validateSignup($c,$p ,$f){
 
   return [$errors , $valid];
 }
-
 
 ?>

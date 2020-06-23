@@ -1,21 +1,18 @@
-<?php $this->extend('layout') ?>
-<?php $this->block('title');
+<?php $this->extend('layout');
+$this->block('title');
  echo $uName;
- $this->endblock(); 
-?>
+$this->endblock();
 
-<?php $this->block("posts") ;
-if ($posts) {
-  foreach ($posts as $p ) {
-    echo $p->getHtml();
-    echo "<br>";
+$this->block("posts") ;
+  if ($posts) {
+    foreach ($posts as $p ) {
+      echo $p->getHtml();
+      echo "<br>";
+    }
+  } else {
+    echo "Your friends have not share any posts yet.<br> Try exploring other people posts <a href=\"/explore\">here</a>";
   }
-} else {
-  echo "Your friends have not share any posts yet.<br> Try exploring other people posts <a href=\"/explore\">here</a>";
-}
-
- ?>
-<?php $this->endblock() ?>
+$this->endblock() ?>
 
 <div id="mainNav" class="w3-bar w3-black">
   <img class="w3-bar-item" src="../myNest/profiles/learnphp.png" width="50px" height="50px">

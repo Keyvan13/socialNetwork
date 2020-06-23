@@ -38,7 +38,6 @@ class SignupPage extends Page
 
 class HomePage extends Page
 {
-
 	function __construct($connection){
 		parent::__construct();
 		$uName = $_SESSION["username"];
@@ -52,14 +51,10 @@ class HomePage extends Page
 
 class ProfilePage extends Page
 {
-
 	function __construct($connection){
 		parent::__construct();
 		$uName = $_SESSION["username"];
-		//$friends = getFirends($connection , $uName);
-		//$friends[] = getUserId($connection , $uName);
 		$posts = getPosts($connection , [getUserId($connection , $uName)]);
-
 		$this->html = $this->env->render('profile' , ['uName'=>$uName , "posts"=>$posts]);
 	}
 }
@@ -67,13 +62,11 @@ class ProfilePage extends Page
 class EditPage extends Page
 {
 	private $posts = null;
-
 	function __construct(){
 		parent::__construct();
 
 		$this->html = $this->env->render('edit' , ['posts'=>$this->posts]);
 	}
-
 	public static function withPosts($posts)
 	{
 		$instance = new self();
