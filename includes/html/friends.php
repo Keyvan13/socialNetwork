@@ -10,7 +10,7 @@ $this->block("friends");
 
   if ($friends) {
     foreach ($friends as $f) {
-      $fName = getuName($connection , $f);
+      $fName = getuName( $f);
       echo "<li>$fName</li>";
     }
   }else {
@@ -46,7 +46,7 @@ $this->block("answers");
   }else {
     foreach ($answers as $f) {
       echo "<p>$f ";
-      if (isFriend($connection , $uName , $f) && $f != $uName) {
+      if (isFriend($uName , $f) && $f != $uName) {
         echo "requested</p>";
       }else {
         echo "<a href=\"/searchPeople?req=true&sender=$uName&receiver=$f\"> request </a></p>";

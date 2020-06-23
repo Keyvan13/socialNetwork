@@ -1,5 +1,6 @@
 <?php
-function validateUniqueness($c,$value ,$field , $table){
+function validateUniqueness($value ,$field , $table){
+  $c = connectDatabase();
   $errors =[];
   $query = "select {$field} from {$table}";
   $result = $c->query($query);
@@ -10,6 +11,8 @@ function validateUniqueness($c,$value ,$field , $table){
       $errors[$field] = "{$field} already exists";
     }
   }
+  $result->close();
+  $c->close();
   return $errors;
 }
 
@@ -68,7 +71,7 @@ function validatePass($p){
   return $errors;
 }
 
-function validateSignup($c,$p ,$f){
+function validateSignup($p ,$f){
 
   $errors =[];
   $valid = [];
@@ -76,7 +79,7 @@ function validateSignup($c,$p ,$f){
   $errors[] = validateFilePresence($f);
   $errors[] = validateLength("username" , 5 , 50 , $p);
   $errors[] = validatePass($p);
-  $errors[] = validateUniqueness($c,$_POST["username"] , "username" , "users");
+  $errors[] = validateUniqueness($_POST["username"] , "username" , "users");
 
   foreach ($errors as $er) {
     if ($er == null) {

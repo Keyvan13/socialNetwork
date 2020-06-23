@@ -86,14 +86,14 @@ function addUser($p , $f)
     die('database query failed');
   } else {
     //$result->close();
-    dumpInfo($result);
     $connection->close();
     return true;
   }
 }
 
-function savePost($connection , $p , $f)
+function savePost($p , $f)
 {
+  $connection = connectDatabase();
   $text = $connection->real_escape_string($p["text"]);
   $path = savePostImage($f);
   $photo = $connection->real_escape_string($path);
@@ -113,8 +113,11 @@ function savePost($connection , $p , $f)
   _END;
   $result = $connection->query($query);
   if (!$result){
+    $connection->close();
     die('database query failed');
   } else {
+    $result->close();
+    $connection->close();
     return true;
   }
 }
@@ -137,7 +140,7 @@ function savePostImage($f)
   return $n;
 }
 
-function checkAuth($connection , $p)
+function checkAuth($p)
 {
   $pass = selectPassword($p['username']);
   if ($pass == false ) {
@@ -185,8 +188,9 @@ function destroy_session_and_data()
   session_destroy();
 }
 
-function getFirends($connection , $uName)
+function getFirends($uName)
 {
+  $connection = connectDatabase();
   $uName = $connection->real_escape_string($uName);
   $userId = getUserId($connection , $uName);
   $friends = [];
@@ -196,18 +200,21 @@ function getFirends($connection , $uName)
     $row = $result->fetch_array(MYSQLI_ASSOC);
     $friends[] = $row["second"];
   }
-
+  $result->close();
   $query = "select first from friends where second = \"$userId\"";
   $result = $connection->query($query);
   for ($i = 0 ; $i<$result->num_rows ; ++$i) {
     $row = $result->fetch_array(MYSQLI_ASSOC);
     $friends[] = $row["first"];
   }
+  $result->close();
+  $connection->close();
   return $friends;
 }
 
-function getReqs($connection , $uName)
+function getReqs($uName)
 {
+  $connection = connectDatabase();
   $uName = $connection->real_escape_string($uName);
   $userId = getUserId($connection , $uName);
   $reqs = [];
@@ -217,58 +224,72 @@ function getReqs($connection , $uName)
     $row = $result->fetch_array(MYSQLI_ASSOC);
     $reqs[] = new Request(getuName($connection , $row["sender"]) , $uName , $row["status"] , $row["id"]) ;
   }
+  $result->close();
+  $connection->close();
   return $reqs;
 }
 
-function getPosts($connection , $friends)
+function getPosts($friends)
 {
   $posts = [];
   if (count($friends) == 0) {
     return $posts;
   }
-
+  $connection = connectDatabase();
   foreach ($friends as $f) {
     $query = "select id,text,dateCreated,imgPath from posts where 	userId = $f";
     $result = $connection->query($query);
 
     for ($i = 0 ; $i<$result->num_rows ; ++$i) {
       $row = $result->fetch_array(MYSQLI_ASSOC);
-      $posts[] = new Post($row["imgPath"] , $row["text"] , getuName($connection ,$f) , $row["dateCreated"] , $row["id"]);
+      $posts[] = new Post($row["imgPath"] , $row["text"] , getuName($f) , $row["dateCreated"] , $row["id"]);
     }
-
   }
+  $result->close();
+  $connection->close();
   return sortPosts($posts);
 }
 
-function getUserId($connection , $uName)
+function getUserId($uName)
 {
+  $connection = connectDatabase();
   //An input shouldn't be escaped twice ($uName)
   $query = "select id from users where username = \"$uName\" limit 1";
   $result = $connection->query($query);
 
   if ($result->num_rows != 0) {
     $row = $result->fetch_array(MYSQLI_ASSOC);
+    $result->close();
+    $connection->close();
     return $row["id"];
   }else {
+    $result->close();
+    $connection->close();
     return false;
   }
 }
 
-function getuName($connection , $uId)
+function getuName($uId)
 {
+  $connection = connectDatabase();
   //An input shouldn't be escaped twice ($uName)
   $query = "select username from users where id = \"$uId\" limit 1";
   $result = $connection->query($query);
   if ($result->num_rows != 0) {
     $row = $result->fetch_array(MYSQLI_ASSOC);
+    $result->close();
+    $connection->close();
     return $row["username"];
   }else {
+    $result->close();
+    $connection->close();
     return false;
   }
 }
 
-function searchUsers($connection , $p)
+function searchUsers($p)
 {
+  $connection = connectDatabase();
   $answers = [];
   $target =($p["searchText"]);
   $query=<<<_END
@@ -285,14 +306,17 @@ function searchUsers($connection , $p)
       $answers[] = $row["username"];
     }
   }
+  $result->close();
+  $connection->close();
   return $answers;
 }
 
-function isFriend($connection , $u1 , $u2)
+function isFriend($u1 , $u2)
 {
+  $connection = connectDatabase();
   $friendship = false;
-  $friends = getFirends($connection , $u1);
-  $ui2 = getUserId($connection , $u2);
+  $friends = getFirends($u1);
+  $ui2 = getUserId($u2);
 
   foreach ($friends as $f) {
     if ($f == $ui2) {
@@ -300,13 +324,16 @@ function isFriend($connection , $u1 , $u2)
       break;
     }
   }
+  $result->close();
+  $connection->close();
   return $friendship;
 }
 
-function performRequest($connection , $sender , $receiver)
+function performRequest($sender , $receiver)
 {
-  $sender = getUserId($connection , $sender);
-  $receiver = getUserId($connection , $receiver);
+  $connection = connectDatabase();
+  $sender = getUserId($sender);
+  $receiver = getUserId($receiver);
   $query=<<<_END
     insert into
     requests (
@@ -321,6 +348,8 @@ function performRequest($connection , $sender , $receiver)
     )
   _END;
   $result = $connection->query($query);
+  $result->close();
+  $connection->close();
 }
 
 function dumpInfo($param)
@@ -337,9 +366,10 @@ function checkAccess()
   }
 }
 
-function handleReq($connection)
+function handleReq()
 {
-  $req = getReqbyId($connection , $_GET["id"]);
+  $connection = connectDatabase();
+  $req = getReqbyId($_GET["id"]);
   $req->setStatus($_GET["status"]);
   $status = $req->getStatus();
   $id = $_GET["id"];
@@ -355,29 +385,39 @@ function handleReq($connection)
 
   $result = $connection->query($query);
   if ($result) {
-    updateFriends($connection);
-  return true;
+    updateFriends();
+    $result->close();
+    $connection->close();
+    return true;
   }else {
+    $result->close();
+    $connection->close();
     die;
   }
 }
 
-function getReqbyId($connection , $id)
+function getReqbyId($id)
 {
+  $connection = connectDatabase();
   //An input shouldn't be escaped twice ($uName)
   $query = "select sender,receiver,status from requests where id = \"$id\"";
   $result = $connection->query($query);
 
   if ($result->num_rows != 0) {
     $row = $result->fetch_array(MYSQLI_ASSOC);
+    $result->close();
+    $connection->close();
     return new Request($row["sender"] , $row["receiver"] , $row["status"] , $id);
   }else {
+    $result->close();
+    $connection->close();
     return false;
   }
 }
 
-function updateFriends($connection)
+function updateFriends()
 {
+  $connection = connectDatabase();
   $query = "select * from requests where status = \"accept\"";
   $reqSet = $connection->query($query);
   $noReqs = $reqSet->num_rows;
@@ -416,11 +456,18 @@ function updateFriends($connection)
       _END;
       $result = $connection->query($query);
       if (!$result) {
+        $reqset->close();
+        $friSet->close();
+        $result->close();
+        $connection->close();
         die;
       }
     }
   }
-
+  $reqSet->close();
+  $friSet->close();
+  $result->close();
+  $connection->close();
 }
 
 function sortPosts($posts){
@@ -438,28 +485,34 @@ function sortPosts($posts){
   return $posts;
 }
 
-function getPostbyId($connection , $id)
+function getPostbyId($id)
 {
+  $connection = connectDatabase();
   $query = "select text from posts where id = \"$id\"";
   $result = $connection->query($query);
   if ($result->num_rows != 0) {
     $row = $result->fetch_array(MYSQLI_ASSOC);
+    $result->close();
+    $connection->close();
     return new Post(null , $row["text"] , null , null , $id);
   }
 }
 
-function updatePost($connection , $p)
+function updatePost($p)
 {
+  $connection = connectDatabase();
   if (isset($p["saveChanges"]) && $p["saveChanges"] === "Save Changes") {
     $text = $connection->real_escape_string($p["text"]);
     $id = $p["id"];
     $query = "update posts set text=\"{$text}\" where id =$id";
-    $connection->query($query);
+    $result = $connection->query($query);
   }elseif (isset($p["delete"]) && $p["delete"] === "Delete Post") {
     $id = $p["id"];
     $query = "delete from posts where id = $id";
-    $connection->query($query);
+    $result = $connection->query($query);
   }
+  $result->close();
+  $connection->close();
  }
 
  ?>

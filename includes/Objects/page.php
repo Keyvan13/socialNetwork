@@ -38,12 +38,12 @@ class SignupPage extends Page
 
 class HomePage extends Page
 {
-	function __construct($connection){
+	function __construct(){
 		parent::__construct();
 		$uName = $_SESSION["username"];
-		$friends = getFirends($connection , $uName);
-		$friends[] = getUserId($connection , $uName);
-		$posts = getPosts($connection , $friends);
+		$friends = getFirends($uName);
+		$friends[] = getUserId( $uName);
+		$posts = getPosts($friends);
 
 		$this->html = $this->env->render('home' , ['uName'=>$uName , "posts"=>$posts]);
 	}
@@ -51,10 +51,10 @@ class HomePage extends Page
 
 class ProfilePage extends Page
 {
-	function __construct($connection){
+	function __construct(){
 		parent::__construct();
 		$uName = $_SESSION["username"];
-		$posts = getPosts($connection , [getUserId($connection , $uName)]);
+		$posts = getPosts([getUserId($uName)]);
 		$this->html = $this->env->render('profile' , ['uName'=>$uName , "posts"=>$posts]);
 	}
 }
@@ -78,14 +78,14 @@ class EditPage extends Page
 
 class FriendsPage extends Page
 {
-	function __construct($connection , $answers)
+	function __construct( $answers)
 	{
 		parent::__construct();
-		updateFriends($connection);
+		updateFriends();
 		$uName = $_SESSION["username"];
-		$friends = getFirends($connection , $uName);
-		$requests = getReqs($connection , $uName);
-		$this->html = $this->env->render('friends' , ['uName'=>$uName , "friends"=>$friends , "requests"=>$requests , "answers"=>$answers , "connection"=>$connection]);
+		$friends = getFirends($uName);
+		$requests = getReqs($uName);
+		$this->html = $this->env->render('friends' , ['uName'=>$uName , "friends"=>$friends , "requests"=>$requests , "answers"=>$answers]);
 	}
 }
 
