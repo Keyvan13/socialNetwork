@@ -1,11 +1,21 @@
 <?php
 
-function selectPassword($connection , $uName)
+function selectPassword($uName)
 {
+  $connection = connectDatabase();
   $uName = $connection->real_escape_string($uName);
   $query = "select hashpassword from users where username = \"{$uName}\" limit 1";
   $result = $connection->query($query);
-  return $result;
+  if ($result->num_rows == 0) {
+    $result->close();
+    $connection->close();
+    return false;
+  }else {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    $result->close();
+    $connection->close();
+    return $row["hashpassword"];
+  }
 }
 
 function redirectTo($des)
@@ -16,8 +26,8 @@ function redirectTo($des)
 
 function connectDatabase()
 {
-  global $hn,$un,$pw,$db;
-  $db = new mysqli($hn , $un , $pw , $db);
+  global $hn,$un,$pw,$dn;
+  $db = new mysqli($hn , $un , $pw , $dn);
   //check database connection
   if ($db->connect_error){
     die("Database connection failed:" .
@@ -123,18 +133,16 @@ function savePostImage($f)
 
 function checkAuth($connection , $p)
 {
-  $passSet = selectPassword($connection , $p['username']);
-  if ($passSet->num_rows == 0 ) {
+  $pass = selectPassword($p['username']);
+  if ($pass == false ) {
     return false;
   } else {
-    $row = $passSet->fetch_array(MYSQLI_ASSOC);
-    if (password_verify($p['pass'] , $row["hashpassword"])) {
+    if (password_verify($p['pass'] , $pass)) {
       return true;
     }else {
       return false;
     }
   }
-
 }
 
 function checkSession()

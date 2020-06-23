@@ -1,6 +1,6 @@
 <?php
 $hn = 'localhost';
-$db = 'mynest';
+$dn = 'mynest';
 $un = 'nest';
 $pw = 'mypasswd';
 ?>
