@@ -5,7 +5,7 @@ $this->block('form');
   if ($posts == null) {
     echo <<<_END
     <form class="w3-container " action="/post" method="post" style="resize: none;"  enctype='multipart/form-data'>
-      <textarea rows="10" class="w3-margin-top w3-container w3-card w3-light-blue" style="width:100%; resize:none;" name="text" ></textarea>
+      <textarea rows="10" class="w3-margin-top w3-container w3-card w3-light-grey" style="width:100%; resize:none;" name="text" placeholder="Type here"></textarea>
       <input class="w3-input" type="file" style="width:90%" name="photo">
       <label>Choose a photo</label>
       <input class="w3-button  w3-section w3-aqua w3-ripple" type="submit" name="saveChanges" value="Save Changes" >
@@ -17,7 +17,7 @@ $this->block('form');
     $id = $posts->getId();
     echo <<<_END
       <form class="w3-container " action="/updatePost" method="post" style="resize: none;"  enctype='multipart/form-data'>
-        <textarea rows="10" class="w3-margin-top w3-container w3-card w3-light-blue" style="width:100%; resize:none;" name="text" >$text</textarea>
+        <textarea rows="10" class="w3-margin-top w3-container w3-card w3-light-grey" style="width:100%; resize:none;" name="text" placeholder="Type here">$text</textarea>
         <input class="w3-input" type="hidden" name="id" value="$id">
         <input class="w3-button  w3-section w3-aqua w3-ripple" type="submit" name="saveChanges" value="Save Changes" >
         <input class="w3-button  w3-section w3-deep-orange w3-ripple" type="submit" name="delete" value="Delete Post" >
