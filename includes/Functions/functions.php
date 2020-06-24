@@ -527,12 +527,23 @@ function hasRequested($sender , $receiver)
   $result->close();
   $connection->close();
 
-
   if ($count["count(*)"] != "0") {
     return true;
   }else {
     return false;
   }
+}
+
+function getProfile($uName)
+{
+  $conn = connectDatabase();
+  $uName = $conn->real_escape_string($uName);
+  $query = "select profilephoto from users where username = '$uName' limit 1";
+  $result = $conn->query($query);
+  $row = $result->fetch_array(MYSQLI_ASSOC);
+  $result->close();
+  $conn->close();
+  return $row['profilephoto'];
 }
 
 ?>

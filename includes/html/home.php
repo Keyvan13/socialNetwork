@@ -15,19 +15,17 @@ $this->block("posts") ;
 $this->endblock() ?>
 
 <div id="mainNav" class="w3-bar w3-black">
-  <img class="w3-bar-item" src="../myNest/profiles/learnphp.png" width="50px" height="50px">
+  <img class="w3-bar-item" src="<?php echo getProfile($_SESSION['username']); ?>" width="50px" height="50px">
   <a href="/explore" class="w3-bar-item w3-button w3-padding-large">Explore</a>
   <a href="/friends" class="w3-bar-item w3-button w3-padding-large">Friends</a>
   <a href="/profile" class="w3-bar-item w3-button w3-padding-large">Profile</a>
   <a href="/new" class="w3-bar-item w3-button w3-padding-large">New Post</a>
+  <a href="/logout" class="w3-bar-item w3-button w3-padding-large w3-right w3-red ">Logout</a>
 </div>
 
 <div>
 <?php echo $this["posts"]; ?>
 </div>
-<footer class="w3-container w3-theme-d3 w3-padding-16">
-	<h5><a href="/logout">Log Out</a></h5>
-</footer>
 <script>
 // Accordion
 function myFunction(id) {

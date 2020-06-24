@@ -62,11 +62,12 @@ $this->endblock();
  ?>
 
 <div id="mainNav" class="w3-bar w3-black">
-  <img class="w3-bar-item" src="../myNest/profiles/learnphp.png" width="50px" height="50px">
+  <img class="w3-bar-item" src="<?php echo getProfile($_SESSION['username']); ?>" width="50px" height="50px">
   <a href="/home" class="w3-bar-item w3-button w3-padding-large">Home</a>
   <a href="/explore" class="w3-bar-item w3-button w3-padding-large">Explore</a>
   <a href="/profile" class="w3-bar-item w3-button w3-padding-large">Profile</a>
   <a href="/new" class="w3-bar-item w3-button w3-padding-large">New Post</a>
+  <a href="/logout" class="w3-bar-item w3-button w3-padding-large w3-right w3-red ">Logout</a>
 </div>
 <?php echo $this["friends"]; ?>
 <br>
