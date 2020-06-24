@@ -222,7 +222,7 @@ function getReqs($uName)
   $result = $connection->query($query);
   for ($i = 0 ; $i<$result->num_rows ; ++$i) {
     $row = $result->fetch_array(MYSQLI_ASSOC);
-    $reqs[] = new Request(getuName($connection , $row["sender"]) , $uName , $row["status"] , $row["id"]) ;
+    $reqs[] = new Request(getuName($row["sender"]) , $uName , $row["status"] , $row["id"]) ;
   }
   $result->close();
   $connection->close();
@@ -331,21 +331,25 @@ function performRequest($sender , $receiver)
   $connection = connectDatabase();
   $sender = getUserId($sender);
   $receiver = getUserId($receiver);
-  $query=<<<_END
-    insert into
-    requests (
-      sender ,
-      receiver ,
-      status
-    )
-    values (
-      $sender ,
-      $receiver ,
-      "pending"
-    )
-  _END;
-  $result = $connection->query($query);
-  $result->close();
+  if (!hasRequested($sender , $receiver)) {
+    $query=<<<_END
+      insert into
+      requests (
+        sender ,
+        receiver ,
+        status
+      )
+      values (
+        $sender ,
+        $receiver ,
+        "pending"
+      )
+    _END;
+    $result = $connection->query($query);
+    if (!is_bool($result)){
+      $result->close();
+    }
+  }
   $connection->close();
 }
 
@@ -383,7 +387,9 @@ function handleReq()
   $result = $connection->query($query);
   if ($result) {
     updateFriends();
-    $result->close();
+    if (!is_bool($result)) {
+      $result->close();
+    }
     $connection->close();
     return true;
   }else {
@@ -508,6 +514,25 @@ function updatePost($p)
   }
   $result->close();
   $connection->close();
- }
+}
 
- ?>
+function hasRequested($sender , $receiver)
+{
+  $connection = connectDatabase();
+  $sender = getUserId($sender);
+  $receiver = getUserId($receiver);
+  $query = "select count(*) from requests WHERE sender = \"$sender\" and receiver = \"$receiver\" ";
+  $result = $connection->query($query);
+  $count = $result->fetch_array(MYSQLI_ASSOC);
+  $result->close();
+  $connection->close();
+
+
+  if ($count["count(*)"] != "0") {
+    return true;
+  }else {
+    return false;
+  }
+}
+
+?>

@@ -45,10 +45,14 @@ $this->block("answers");
     echo "<br>";
   }else {
     foreach ($answers as $f) {
-      echo "<p><a href=\"/profile?uName=$f\">$f</a>";
+      echo "<p><a href=\"/profile?uName=$f\">$f</a> ";
       if (isFriend($uName , $f) && $f != $uName) {
+        echo "friend</p>";
+      }elseif (hasRequested($uName , $f) && $f != $uName) {
+
         echo "requested</p>";
       }else {
+        //dumpInfo(hasRequested($f , $uName));
         echo "<a href=\"/searchPeople?req=true&sender=$uName&receiver=$f\"> request </a></p>";
       }
     }
