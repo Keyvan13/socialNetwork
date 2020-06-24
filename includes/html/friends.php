@@ -45,7 +45,7 @@ $this->block("answers");
     echo "<br>";
   }else {
     foreach ($answers as $f) {
-      echo "<p>$f ";
+      echo "<p><a href=\"/profile?uName=$f\">$f</a>";
       if (isFriend($uName , $f) && $f != $uName) {
         echo "requested</p>";
       }else {

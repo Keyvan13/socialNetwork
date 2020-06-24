@@ -98,7 +98,7 @@ function savePost($p , $f)
   $path = savePostImage($f);
   $photo = $connection->real_escape_string($path);
   $uName = $connection->real_escape_string($_SESSION["username"]);
-  $userId = getUserId($connection , $uName);
+  $userId = getUserId($uName);
 
   $query = <<<_END
     insert into posts (
@@ -192,7 +192,7 @@ function getFirends($uName)
 {
   $connection = connectDatabase();
   $uName = $connection->real_escape_string($uName);
-  $userId = getUserId($connection , $uName);
+  $userId = getUserId($uName);
   $friends = [];
   $query = "select second from friends where first = \"$userId\"";
   $result = $connection->query($query);
@@ -216,7 +216,7 @@ function getReqs($uName)
 {
   $connection = connectDatabase();
   $uName = $connection->real_escape_string($uName);
-  $userId = getUserId($connection , $uName);
+  $userId = getUserId($uName);
   $reqs = [];
   $query = "select id,sender,status from requests where receiver = \"$userId\"";
   $result = $connection->query($query);
@@ -313,7 +313,6 @@ function searchUsers($p)
 
 function isFriend($u1 , $u2)
 {
-  $connection = connectDatabase();
   $friendship = false;
   $friends = getFirends($u1);
   $ui2 = getUserId($u2);
@@ -324,8 +323,6 @@ function isFriend($u1 , $u2)
       break;
     }
   }
-  $result->close();
-  $connection->close();
   return $friendship;
 }
 
@@ -458,7 +455,6 @@ function updateFriends()
       if (!$result) {
         $reqset->close();
         $friSet->close();
-        $result->close();
         $connection->close();
         die;
       }
@@ -466,7 +462,6 @@ function updateFriends()
   }
   $reqSet->close();
   $friSet->close();
-  $result->close();
   $connection->close();
 }
 

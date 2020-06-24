@@ -13,15 +13,13 @@ class Post{
 
     $this->html = <<<_END
       <div class="w3-card-4 w3-margin-top w3-container">
-
         <div class="w3-center">
           <img  src="$this->imgPath" style="width:50%">
         </div>
         <div>
-          <p>$this->uName</p>
+          <p><a href="/profile?uName=$this->uName">$this->uName</a></p>
           <p>$this->text</p>
         </div>
-
       </div>
     _END;
   }

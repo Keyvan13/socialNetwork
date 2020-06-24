@@ -44,7 +44,6 @@ class HomePage extends Page
 		$friends = getFirends($uName);
 		$friends[] = getUserId( $uName);
 		$posts = getPosts($friends);
-
 		$this->html = $this->env->render('home' , ['uName'=>$uName , "posts"=>$posts]);
 	}
 }
@@ -54,8 +53,15 @@ class ProfilePage extends Page
 	function __construct(){
 		parent::__construct();
 		$uName = $_SESSION["username"];
-		$posts = getPosts([getUserId($uName)]);
-		$this->html = $this->env->render('profile' , ['uName'=>$uName , "posts"=>$posts]);
+		$posts = getPosts([getUserId($uName)]);//the function only accetps arrays
+		$this->html = $this->env->render('profile' , ['uName'=>$uName , "posts"=>$posts , "owner"=>"self" , "editable"=>true]);
+	}
+	public	static	function othersProfile($owner)
+	{
+		$instance = new self();
+		$instance->posts = getPosts([getUserId($owner)]);
+		$instance->html = $instance->env->render('profile' , ['uName'=>false , "posts"=>$instance->posts , "owner"=>$owner , "editable"=>false]);
+		return $instance;
 	}
 }
 
