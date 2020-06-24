@@ -546,4 +546,20 @@ function getProfile($uName)
   return $row['profilephoto'];
 }
 
+function getAllPost()
+{
+  $posts = [];
+
+  $connection = connectDatabase();
+  $query = "select id,text,dateCreated,imgPath,userId from posts";
+  $result = $connection->query($query);
+  for ($i = 0 ; $i<$result->num_rows ; ++$i) {
+    $row = $result->fetch_array(MYSQLI_ASSOC);
+    $posts[] = new Post($row["imgPath"] , $row["text"] , getuName($row['userId']) , $row["dateCreated"] , $row["id"]);
+  }
+  $result->close();
+  $connection->close();
+  return sortPosts($posts);
+}
+
 ?>

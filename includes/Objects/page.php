@@ -46,6 +46,12 @@ class HomePage extends Page
 		$posts = getPosts($friends);
 		$this->html = $this->env->render('home' , ['uName'=>$uName , "posts"=>$posts]);
 	}
+	public function explorePage()
+	{
+		$instance = new self();
+		$instance->posts = getAllPost();
+		return $instance;
+	}
 }
 
 class ProfilePage extends Page
