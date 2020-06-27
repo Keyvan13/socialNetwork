@@ -116,7 +116,9 @@ function savePost($p , $f)
     $connection->close();
     die('database query failed');
   } else {
-    $result->close();
+    if (!is_bool($result)) {
+      $result->close();
+    }
     $connection->close();
     return true;
   }
@@ -512,7 +514,9 @@ function updatePost($p)
     $query = "delete from posts where id = $id";
     $result = $connection->query($query);
   }
-  $result->close();
+  if (!is_bool($result)) {
+    $result->close();
+  }
   $connection->close();
 }
 
