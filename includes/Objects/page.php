@@ -50,6 +50,7 @@ class HomePage extends Page
 	{
 		$instance = new self();
 		$instance->posts = getAllPost();
+		$instance->html = $instance->env->render('home' , ['uName'=>$_SESSION["username"] , "posts"=>$instance->posts]);
 		return $instance;
 	}
 }
