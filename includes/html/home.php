@@ -23,8 +23,10 @@ $this->endblock() ?>
   <a href="/logout" class="w3-bar-item w3-button w3-padding-large w3-right w3-red ">Logout</a>
 </div>
 
-<div>
-<?php echo $this["posts"]; ?>
+<div class="w3-auto" id="posts">
+
+  <?php echo $this["posts"]; ?>
+
 </div>
 <script>
 // Accordion

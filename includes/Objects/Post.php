@@ -12,10 +12,11 @@ class Post{
     $this->id = $id;
 
     $this->html = <<<_END
-      <div class="w3-card-4 w3-margin-top w3-container">
+      <div class="w3-card w3-white w3-round w3-auto" style="width:70%"><br>
         <div class="w3-center">
           <img  src="$this->imgPath" style="width:50%">
         </div>
+        <hr class="w3-clear">
         <div>
           <p><a href="/profile?uName=$this->uName">$this->uName</a></p>
           <p>$this->text</p>
