@@ -1,4 +1,5 @@
 profiles/
 posts/
-
-/vendor/
+vendor/
+SimpleTemplateEngine/
+composer.json
